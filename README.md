@@ -89,7 +89,7 @@ SimpleNetworking.shared.get("/path") {(req) in
   return req.on(httpStatus: 401, {(request, response) in
     print("got unauthorized: \(response)")
     SimpleNetworking.shared.defaultHeaders["Authorization"] = myAuthHeaderValue
-    request.retry()
+    request.retry(on: SimpleNetworking.shared)
     return false
   })
 }

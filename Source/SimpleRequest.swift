@@ -33,8 +33,6 @@ public class SimpleRequest {
 
     public var acceptContentType: ContentType = .json
 
-    private weak var manager: SimpleNetworking? // used for retries
-
     private var httpStatusHandlers = [Int: SimpleHTTPStatusHandler]()
     private var responseHandlers = [SimpleResponseHandler]()
     private var errorHandlers = [SimpleErrorHandler]()
@@ -48,17 +46,29 @@ public class SimpleRequest {
         self.acceptContentType = contentType
         return self
     }
+
+    public func url(baseURL: URL) -> URL {
+        return URL(string: path, relativeTo: baseURL)!
+    }
+}
+
+public class SimpleRequestGET: SimpleRequest {
+    let queryParameters: [String: String]
+
+    public init(path: String, params: [String: String] = [String: String]()) {
+        self.queryParameters = params
+        super.init(path: path, httpMethod: .get)
+    }
 }
 
 // execution
 extension SimpleRequest {
     public func execute(on manager: SimpleNetworking) {
-        self.manager = manager
         manager.execute(request: self)
     }
 
-    public func retry() {
-        guard let manager = manager, retries < manager.maxRetries else { return }
+    public func retry(on manager: SimpleNetworking) {
+        guard retries < manager.maxRetries else { return }
         retries += 1
         manager.execute(request: self)
     }
