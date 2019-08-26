@@ -23,6 +23,7 @@ public class SimpleRequest {
 
     public typealias SimpleHTTPStatusHandler = (SimpleRequest, SimpleResponse) -> Bool
     public typealias SimpleResponseHandler = (SimpleResponse) -> Void
+    public typealias SimpleErrorHandlerWithResponse = (SimpleNetworkingError, SimpleResponse?) -> Void
     public typealias SimpleErrorHandler = (SimpleNetworkingError) -> Void
 
     public let path: String
@@ -36,6 +37,7 @@ public class SimpleRequest {
     private var httpStatusHandlers = [Int: SimpleHTTPStatusHandler]()
     private var responseHandlers = [SimpleResponseHandler]()
     private var errorHandlers = [SimpleErrorHandler]()
+    private var errorHandlersWithResponse = [SimpleErrorHandlerWithResponse]()
 
     public init(path: String, httpMethod: HTTPMethod) {
         self.path = path
@@ -94,6 +96,11 @@ extension SimpleRequest {
         responseHandlers.append(handler)
         return self
     }
+
+    public func on(error handler: @escaping SimpleErrorHandlerWithResponse) -> Self {
+        errorHandlersWithResponse.append(handler)
+        return self
+    }
 }
 
 // upon getting a response
@@ -101,18 +108,19 @@ extension SimpleRequest {
     internal func didReceive(response: SimpleResponse) {
         guard shouldContinueUponReceiving(response) else { return }
 
-        let error: SimpleNetworkingError? = response.validFor(contentType: acceptContentType) ? response.error : .invalidResponse
-
-        if let error = error {
-            didReceive(error: error)
+        if let error = response.error {
+            didReceive(error: error, response: response)
         } else if response.success {
             didReceive(success: response)
         }
     }
 
-    internal func didReceive(error: SimpleNetworkingError) {
+    internal func didReceive(error: SimpleNetworkingError, response: SimpleResponse?) {
         for handler in errorHandlers {
             handler(error)
+        }
+        for handler in errorHandlersWithResponse {
+            handler(error, response)
         }
     }
 

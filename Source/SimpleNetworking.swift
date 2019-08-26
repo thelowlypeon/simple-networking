@@ -9,7 +9,7 @@
 import Foundation
 
 public enum SimpleNetworkingError: Error {
-    case noResponse, networkingError(Error?), clientError(Int), serverError(Int), invalidResponse
+    case noResponse, networkingError(Error?), clientError(Int), serverError(Int), invalidResponse, unknown(String)
 }
 
 public typealias SimpleRequestBuilder = (SimpleRequest) -> SimpleRequest
@@ -41,7 +41,7 @@ public class SimpleNetworking {
             with: buildURLRequest(from: simpleRequest)
         ) {(data, response, error) in
             if let error = error {
-                simpleRequest.didReceive(error: .networkingError(error))
+                simpleRequest.didReceive(error: .networkingError(error), response: nil)
             } else {
                 let simpleResponse = SimpleResponse(
                     data: data,

@@ -96,6 +96,7 @@ SimpleNetworking.shared.get("/path") {(req) in
 ```
 
 Error handlers will be passed a `SimpleNetworkingError`, indicating what failed.
+Your error handler can optionally include a second parameter which will be an optional response. This will be nil if the error happened before the request was made.
 
 ### Subclassing `SimpleNetworking`
 
