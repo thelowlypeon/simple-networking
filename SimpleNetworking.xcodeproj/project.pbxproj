@@ -14,6 +14,7 @@
 		D02A697F2311E69D006E7BDE /* SimpleRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D02A697E2311E69D006E7BDE /* SimpleRequest.swift */; };
 		D02A69812311E6C5006E7BDE /* SimpleResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = D02A69802311E6C5006E7BDE /* SimpleResponse.swift */; };
 		D038819323131A53005AED94 /* SimpleResponseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D038819223131A53005AED94 /* SimpleResponseTests.swift */; };
+		D038819523132BC6005AED94 /* RequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D038819423132BC6005AED94 /* RequestTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,7 @@
 		D02A69802311E6C5006E7BDE /* SimpleResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SimpleResponse.swift; path = Source/SimpleResponse.swift; sourceTree = SOURCE_ROOT; };
 		D02A69822311EABD006E7BDE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D038819223131A53005AED94 /* SimpleResponseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleResponseTests.swift; sourceTree = "<group>"; };
+		D038819423132BC6005AED94 /* RequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +97,7 @@
 			children = (
 				D02A69702311E649006E7BDE /* SimpleNetworkingTests.swift */,
 				D038819223131A53005AED94 /* SimpleResponseTests.swift */,
+				D038819423132BC6005AED94 /* RequestTests.swift */,
 				D02A69722311E649006E7BDE /* Info.plist */,
 			);
 			path = SimpleNetworkingTests;
@@ -219,6 +222,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D038819523132BC6005AED94 /* RequestTests.swift in Sources */,
 				D038819323131A53005AED94 /* SimpleResponseTests.swift in Sources */,
 				D02A69712311E649006E7BDE /* SimpleNetworkingTests.swift in Sources */,
 			);

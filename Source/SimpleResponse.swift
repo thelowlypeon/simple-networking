@@ -30,7 +30,7 @@ public class SimpleResponse {
         self.httpData = httpData
         self.httpResponse = response
 
-        self.success = (100..<399).contains(response.statusCode)
+        self.success = (100..<399).contains(response.statusCode) // includes redirects
 
         if (400..<499).contains(response.statusCode) {
             self.error = .clientError(response.statusCode)

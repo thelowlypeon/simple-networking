@@ -36,6 +36,11 @@ public class SimpleNetworking {
         self.defaultHeaders = defaultHeaders ?? [String: String]()
     }
 
+    public func authenticate(with user: String, password: String) {
+        let base64EncodedAuth = Data("\(user):\(password)".utf8).base64EncodedString()
+        self.defaultHeaders["Authorization"] = "Basic \(base64EncodedAuth)"
+    }
+
     public func execute(request simpleRequest: SimpleRequest) {
         session.dataTask(
             with: buildURLRequest(from: simpleRequest)
@@ -50,14 +55,15 @@ public class SimpleNetworking {
                 if let simpleResponse = simpleResponse {
                     simpleRequest.didReceive(response: simpleResponse)
                 } else {
-                    simpleRequest.didReceive(error: .invalidResponse)
+                    simpleRequest.didReceive(error: .invalidResponse, response: nil)
                 }
             }
         }.resume()
     }
 
     private func buildURLRequest(from simpleRequest: SimpleRequest) -> URLRequest {
-        var request = URLRequest(url: baseURL.appendingPathComponent(simpleRequest.path))
+        let url = simpleRequest.url(baseURL: baseURL)
+        var request = URLRequest(url: url)
         request.httpMethod = simpleRequest.httpMethod.rawValue
         request.allHTTPHeaderFields = headers(for: simpleRequest)
         return request
