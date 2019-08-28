@@ -140,3 +140,14 @@ update it every time the remote returns a 401 indicating your auth token is no g
 ## Contributing
 
 Feel free to submit a pull request!
+
+If you need an xcode project to run this in, simply run:
+
+```bash
+swift package generate-xcodeproj
+```
+
+### Testing
+
+Run unit tests against the application either in an xcodeproj you created by running
+`swift package generate-xcodeproj`, or by running `switft build` and `swift test`.
