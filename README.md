@@ -150,4 +150,4 @@ swift package generate-xcodeproj
 ### Testing
 
 Run unit tests against the application either in an xcodeproj you created by running
-`swift package generate-xcodeproj`, or by running `switft build` and `swift test`.
+`swift package generate-xcodeproj`, or by running `swift build` and `swift test`.
