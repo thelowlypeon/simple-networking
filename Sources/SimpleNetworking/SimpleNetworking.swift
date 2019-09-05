@@ -14,7 +14,7 @@ public enum SimpleNetworkingError: Error {
 
 public typealias SimpleRequestBuilder = (SimpleRequest) -> SimpleRequest
 
-public class SimpleNetworking {
+open class SimpleNetworking {
 
     public let baseURL: URL
 
