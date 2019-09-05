@@ -107,7 +107,7 @@ after getting a new auth token:
 ```swift
 class MyAPIManager: SimpleNetworking {
   var token: String? {
-    didSet { self.headers["X-Authorization"] = token }
+    didSet { self.defaultHeaders["X-Authorization"] = token }
   }
 
   func authenticate(_ callback: @escaping () -> Void) {
@@ -122,7 +122,7 @@ class MyAPIManager: SimpleNetworking {
   }
 
   override func execute(request: SimpleRequest) {
-    if request.httpStatusHandlers[401] == nil {
+    if !request.handles(401) {
       request.on(httpStatus: 401, {(request, _) in
         self.authenticate() { request.retry() }
         return false
