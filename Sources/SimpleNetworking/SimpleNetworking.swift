@@ -42,7 +42,7 @@ open class SimpleNetworking {
         self.defaultHeaders = defaultHeaders ?? [String: String]()
     }
 
-    public func authenticate(with user: String, password: String) {
+    open func authenticate(with user: String, password: String) {
         let base64EncodedAuth = Data("\(user):\(password)".utf8).base64EncodedString()
         self.defaultHeaders["Authorization"] = "Basic \(base64EncodedAuth)"
     }
@@ -87,11 +87,11 @@ open class SimpleNetworking {
 }
 
 extension SimpleNetworking {
-    public func get(_ path: String, _ requestBuilder: SimpleRequestBuilder) {
+    open func get(_ path: String, _ requestBuilder: SimpleRequestBuilder) {
         execute(request: requestBuilder(SimpleNetworking.get(path)))
     }
 
-    public class func get(_ path: String) -> SimpleRequest {
+    open class func get(_ path: String) -> SimpleRequest {
         return SimpleRequest(path: path, httpMethod: .get)
     }
 }
