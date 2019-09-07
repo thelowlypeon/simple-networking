@@ -34,7 +34,42 @@ class RequestTests: XCTestCase {
         }
         waitForExpectations(timeout: 1, handler: nil)
         XCTAssertNotNil(response)
-        XCTAssertEqual(response?.json?["url"] as? String, "https://httpbin.org/get?param=value")
+        if let dict = response?.json as? Dictionary<String, Any> {
+            XCTAssertEqual(dict["url"] as? String, "https://httpbin.org/get?param=value")
+        } else {
+            XCTFail("JSON dict casting failed")
+        }
+    }
+
+    func testDecode() {
+        struct Container: Decodable {
+            let slideshow: Slideshow
+            enum CodingKeys: String, CodingKey {
+                case slideshow = "slideshow"
+            }
+        }
+        struct Slideshow: Decodable {
+            let author: String
+            enum CodingKeys: String, CodingKey {
+                case author = "author"
+            }
+        }
+        let expectation = self.expectation(description: "Received successful GET")
+        var instance: Container?
+        manager.get("/json") {(request) in
+            return request
+                .accept(.json)
+                .on(error: {(error, _) in
+                    XCTFail("failed with error \(error)")
+                })
+                .on(success: {(resp) in
+                    instance = resp.decodeJSON()
+                    expectation.fulfill()
+                })
+        }
+        waitForExpectations(timeout: 1, handler: nil)
+        XCTAssertNotNil(instance)
+        XCTAssertEqual(instance?.slideshow.author, "Yours Truly")
     }
 
     func testAuthenticationChallenge() {
@@ -58,7 +93,7 @@ class RequestTests: XCTestCase {
         waitForExpectations(timeout: 3, handler: nil)
         XCTAssertNotNil(response)
         XCTAssertFalse(continuedAfterError)
-        XCTAssertTrue(response?.json?["authenticated"] as? Bool ?? false)
+        XCTAssertTrue((response?.json as? Dictionary<String, Any>)?["authenticated"] as? Bool ?? false)
     }
 
     func testHTTPStatusHandlerContinues() {
@@ -93,7 +128,7 @@ class RequestTests: XCTestCase {
                 })
         }
         waitForExpectations(timeout: 1, handler: nil)
-        if let actualHeaders = response?.json?["headers"] as? Dictionary<String, String> {
+        if let actualHeaders = (response?.json as? Dictionary<String, Any>)?["headers"] as? Dictionary<String, String> {
             XCTAssertEqual(actualHeaders["Header1"], "Value1")
             XCTAssertEqual(actualHeaders["Header2"], "Value2")
         } else {
@@ -114,7 +149,7 @@ class RequestTests: XCTestCase {
         }
         waitForExpectations(timeout: 1, handler: nil)
         XCTAssertNotNil(response)
-        XCTAssertEqual(response?.json?["url"] as? String, "https://httpbin.org/get")
+        XCTAssertEqual((response?.json as? Dictionary<String, Any>)?["url"] as? String, "https://httpbin.org/get")
     }
 
     func testGETRequestServerSideError() {

@@ -19,8 +19,7 @@ public class SimpleResponse {
 
     public let error: SimpleNetworkingError?
 
-    public let json: Dictionary<String, Any>?
-
+    public let json: Any?
     public let text: String?
 
     public init?(data httpData: Data?,
@@ -42,33 +41,29 @@ public class SimpleResponse {
             self.error = nil
         }
 
-        self.json = httpData?.toDictionary()
-        self.text = httpData?.toString()
-    }
-
-    internal func validFor(contentType: SimpleRequest.ContentType) -> Bool {
-        if httpData == nil { return true }
-        switch contentType {
-        case .json: return json != nil
-        case .text: return text != nil
+        if let data = httpData {
+            self.text = String(data: data, encoding: .utf8)
+            self.json = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+        } else {
+            self.text = nil
+            self.json = nil
         }
     }
 }
 
 extension SimpleResponse: CustomStringConvertible {
     public var description: String {
-        return "SimpleResponse<httpStatus: \(httpStatus), body: \(text ?? "null")>"
+        return "SimpleResponse<httpStatus: \(httpStatus), body: \(String(describing: text))>"
     }
 }
 
-extension Data {
-    public func toDictionary<T, U>() -> Dictionary<T, U>? {
-        guard let jsonObject = try? JSONSerialization.jsonObject(with: self, options: .mutableContainers) else { return nil }
-        return jsonObject as? Dictionary<T, U>
-    }
+// decoding
+extension SimpleResponse {
+    public func decodeJSON<T: Decodable>(using aDecoder: JSONDecoder? = nil) -> T? {
+        guard let data = httpData else { return nil }
 
-    public func toString() -> String? {
-        let str = String(data: self, encoding: .utf8)
-        return str != "" ? str : nil
+        let decoder = aDecoder ?? JSONDecoder()
+
+        return try? decoder.decode(T.self, from: data)
     }
 }
