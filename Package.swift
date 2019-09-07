@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "SimpleNetworking",
+    platforms: [
+        .ios(.v10)
+    ],
     products: [
         .library(
             name: "SimpleNetworking",
