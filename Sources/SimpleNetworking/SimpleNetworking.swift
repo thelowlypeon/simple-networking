@@ -9,7 +9,13 @@
 import Foundation
 
 public enum SimpleNetworkingError: Error {
-    case noResponse, networkingError(Error?), clientError(Int), serverError(Int), invalidResponse, unknown(String)
+    case invalidURL
+    case noResponse
+    case networkingError(Error?)
+    case clientError(Int)
+    case serverError(Int)
+    case invalidResponse
+    case unknown(String) // for debugging
 }
 
 public typealias SimpleRequestBuilder = (SimpleRequest) -> SimpleRequest
@@ -41,9 +47,13 @@ open class SimpleNetworking {
         self.defaultHeaders["Authorization"] = "Basic \(base64EncodedAuth)"
     }
 
-    public func execute(request simpleRequest: SimpleRequest) {
+    open func execute(request simpleRequest: SimpleRequest) {
+        guard let urlRequest = buildURLRequest(from: simpleRequest) else {
+            simpleRequest.didReceive(error: .invalidURL, response: nil)
+            return
+        }
         session.dataTask(
-            with: buildURLRequest(from: simpleRequest)
+            with: urlRequest
         ) {(data, response, error) in
             if let error = error {
                 simpleRequest.didReceive(error: .networkingError(error), response: nil)
@@ -61,8 +71,8 @@ open class SimpleNetworking {
         }.resume()
     }
 
-    private func buildURLRequest(from simpleRequest: SimpleRequest) -> URLRequest {
-        let url = simpleRequest.url(baseURL: baseURL)
+    private func buildURLRequest(from simpleRequest: SimpleRequest) -> URLRequest? {
+        guard let url = simpleRequest.url(baseURL: baseURL) else { return nil }
         var request = URLRequest(url: url)
         request.httpMethod = simpleRequest.httpMethod.rawValue
         request.allHTTPHeaderFields = headers(for: simpleRequest)

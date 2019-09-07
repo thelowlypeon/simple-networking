@@ -49,17 +49,8 @@ public class SimpleRequest {
         return self
     }
 
-    public func url(baseURL: URL) -> URL {
-        return URL(string: path, relativeTo: baseURL)!
-    }
-}
-
-public class SimpleRequestGET: SimpleRequest {
-    let queryParameters: [String: String]
-
-    public init(path: String, params: [String: String] = [String: String]()) {
-        self.queryParameters = params
-        super.init(path: path, httpMethod: .get)
+    public func url(baseURL: URL) -> URL? {
+        return URL(string: "\(baseURL)\(path)")
     }
 }
 
