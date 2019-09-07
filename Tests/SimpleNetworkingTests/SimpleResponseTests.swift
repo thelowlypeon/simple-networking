@@ -27,30 +27,6 @@ class SimpleResponseTests: XCTestCase {
         XCTAssertNil(response.error)
     }
 
-    func testValidForJSONWithValidJSON() {
-        let response = SimpleResponse(data: jsonData, response: successURLResponse)!
-        XCTAssertTrue(response.validFor(contentType: .json))
-        XCTAssertEqual(response.json?["key"] as? String, "value")
-    }
-
-    func testValidForJSONWithInvalidJSON() {
-        let response = SimpleResponse(data: textData, response: successURLResponse)!
-        XCTAssertFalse(response.validFor(contentType: .json))
-        XCTAssertNil(response.json)
-    }
-
-    func testValidForTestWithInvalidText() {
-        let response = SimpleResponse(data: Data(), response: successURLResponse)!
-        XCTAssertFalse(response.validFor(contentType: .text))
-        XCTAssertNil(response.text)
-    }
-
-    func testValidForTestWithValidText() {
-        let response = SimpleResponse(data: textData, response: successURLResponse)!
-        XCTAssertTrue(response.validFor(contentType: .text))
-        XCTAssertEqual(response.text, "not json")
-    }
-
     func testServerErrorStatusCode() {
         let serverErrorURLResponse = HTTPURLResponse(
             url: URL(string: "...")!,

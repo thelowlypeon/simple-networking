@@ -58,11 +58,7 @@ open class SimpleNetworking {
             if let error = error {
                 simpleRequest.didReceive(error: .networkingError(error), response: nil)
             } else {
-                let simpleResponse = SimpleResponse(
-                    data: data,
-                    response: response as? HTTPURLResponse
-                )
-                if let simpleResponse = simpleResponse {
+                if let simpleResponse = SimpleResponse(data: data, response: response as? HTTPURLResponse) {
                     simpleRequest.didReceive(response: simpleResponse)
                 } else {
                     simpleRequest.didReceive(error: .invalidResponse, response: nil)
