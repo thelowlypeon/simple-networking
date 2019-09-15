@@ -28,6 +28,8 @@ public class SimpleRequest {
 
     public let path: String
 
+    public let queryParams: [String: String?]?
+
     public let httpMethod: HTTPMethod
 
     public var retries = 0
@@ -39,8 +41,9 @@ public class SimpleRequest {
     private var errorHandlers = [SimpleErrorHandler]()
     private var errorHandlersWithResponse = [SimpleErrorHandlerWithResponse]()
 
-    public init(path: String, httpMethod: HTTPMethod) {
+    public init(path: String, httpMethod: HTTPMethod, queryParams: [String: String?]? = nil) {
         self.path = path
+        self.queryParams = queryParams
         self.httpMethod = httpMethod
     }
 
@@ -50,7 +53,12 @@ public class SimpleRequest {
     }
 
     public func url(baseURL: URL) -> URL? {
-        return URL(string: "\(baseURL)\(path)")
+        guard var components = URLComponents(string: baseURL.absoluteString) else { return nil }
+        components.path = components.path + path
+        components.queryItems = queryParams?.map({(key, value) in
+            return URLQueryItem(name: key, value: value)
+        })
+        return components.url
     }
 }
 

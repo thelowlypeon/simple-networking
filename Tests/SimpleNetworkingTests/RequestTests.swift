@@ -21,7 +21,7 @@ class RequestTests: XCTestCase {
     func testGET() {
         let expectation = self.expectation(description: "Received successful GET")
         var response: SimpleResponse?
-        manager.get("/get?param=value") {(request) in
+        manager.get("/get", queryParams: ["param": "value"]) {(request) in
             return request
                 .accept(.json)
                 .on(error: {(error, _) in
@@ -139,7 +139,8 @@ class RequestTests: XCTestCase {
     func testGETRequestFollowsRedirects() {
         let expectation = self.expectation(description: "Received redirect")
         var response: SimpleResponse?
-        manager.get("/redirect-to?url=https%3A%2F%2Fhttpbin.org%2Fget&status_code=301") {(request) in
+        let params = ["url": "https://httpbin.org/get", "status_code": "301"]
+        manager.get("/redirect-to", queryParams: params) {(request) in
             return request
                 .accept(.json)
                 .on(success: {(resp) in

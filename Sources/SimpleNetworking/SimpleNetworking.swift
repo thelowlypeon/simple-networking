@@ -83,12 +83,12 @@ open class SimpleNetworking {
 }
 
 extension SimpleNetworking {
-    open func get(_ path: String, _ requestBuilder: SimpleRequestBuilder) {
-        execute(request: requestBuilder(SimpleNetworking.get(path)))
+    open func get(_ path: String, queryParams: [String: String?]? = nil, _ requestBuilder: SimpleRequestBuilder) {
+        execute(request: requestBuilder(SimpleNetworking.get(path, queryParams: queryParams)))
     }
 
-    open class func get(_ path: String) -> SimpleRequest {
-        return SimpleRequest(path: path, httpMethod: .get)
+    open class func get(_ path: String, queryParams: [String: String?]? = nil) -> SimpleRequest {
+        return SimpleRequest(path: path, httpMethod: .get, queryParams: queryParams)
     }
 }
 
