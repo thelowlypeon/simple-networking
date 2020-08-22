@@ -19,6 +19,15 @@ public class SimpleRequest {
     public enum ContentType: String {
         case json = "application/json"
         case text = "application/text"
+        case html = "application/html"
+
+        public func header() -> [String: String] {
+            return ["Content-Type": self.rawValue]
+        }
+
+        public func acceptHeader() -> [String: String] {
+            return ["Accept": self.rawValue]
+        }
     }
 
     public typealias SimpleHTTPStatusHandler = (SimpleRequest, SimpleResponse) -> Bool
@@ -30,26 +39,70 @@ public class SimpleRequest {
 
     public let queryParams: [String: String?]?
 
+    public var body: Data?
+
+    public var additionalHeaders: [String: String]
+
     public let httpMethod: HTTPMethod
 
     public var retries = 0
 
     public var acceptContentType: ContentType = .json
 
+    public var contentType: ContentType = .json
+
     private var httpStatusHandlers = [Int: SimpleHTTPStatusHandler]()
     private var responseHandlers = [SimpleResponseHandler]()
     private var errorHandlers = [SimpleErrorHandler]()
     private var errorHandlersWithResponse = [SimpleErrorHandlerWithResponse]()
 
-    public init(path: String, httpMethod: HTTPMethod, queryParams: [String: String?]? = nil) {
+
+    public init(
+        path: String,
+        httpMethod: HTTPMethod,
+        queryParams: [String: String?]? = nil,
+        body: Data? = nil,
+        headers: [String: String]? = nil
+    ) {
         self.path = path
         self.queryParams = queryParams
         self.httpMethod = httpMethod
+        self.body = body
+        self.additionalHeaders = headers ?? [:]
     }
 
     public func accept(_ contentType: ContentType) -> Self {
         self.acceptContentType = contentType
         return self
+    }
+
+    public func body(json jsonObject: Any) -> Self {
+        return body(data: try? JSONSerialization.data(withJSONObject: jsonObject), contentType: .json)
+    }
+
+    public func body(data: Data?, contentType: ContentType) -> Self {
+        self.contentType = contentType
+        self.body = data
+        return self
+    }
+
+    open func authenticateBasic(user: String, password: String, at headerName: String? = nil) -> Self {
+        let base64EncodedAuth = Data("\(user):\(password)".utf8).base64EncodedString()
+        return self.authenticate(
+            withHeader: "Basic \(base64EncodedAuth)",
+            at: headerName ?? "Authorization"
+        )
+    }
+
+    public func authenticate(withHeader value: String, at headerName: String? = nil) -> Self {
+        self.additionalHeaders[headerName ?? "Authorization"] = value
+        return self
+    }
+
+    public func headers() -> [String: String] {
+        return additionalHeaders
+            .merging(self.contentType.header()) {(_, new) in new}
+            .merging(self.acceptContentType.acceptHeader()) {(_, new) in new}
     }
 
     public func url(baseURL: URL) -> URL? {

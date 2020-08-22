@@ -71,24 +71,28 @@ open class SimpleNetworking {
         guard let url = simpleRequest.url(baseURL: baseURL) else { return nil }
         var request = URLRequest(url: url)
         request.httpMethod = simpleRequest.httpMethod.rawValue
-        request.allHTTPHeaderFields = headers(for: simpleRequest)
+        request.allHTTPHeaderFields = defaultHeaders
+            .merging(simpleRequest.headers()) {(_, new) in new}
+        request.httpBody = simpleRequest.body
         return request
-    }
-
-    private func headers(for simpleRequest: SimpleRequest) -> [String: String] {
-        return defaultHeaders.merging(
-            ["Accept": simpleRequest.acceptContentType.rawValue]
-        ) {(old, _) in old }
     }
 }
 
 extension SimpleNetworking {
-    open func get(_ path: String, queryParams: [String: String?]? = nil, _ requestBuilder: SimpleRequestBuilder) {
-        execute(request: requestBuilder(SimpleNetworking.get(path, queryParams: queryParams)))
+    open func get(_ path: String, queryParams: [String: String?]? = nil, headers: [String: String]? = nil, _ requestBuilder: SimpleRequestBuilder) {
+        execute(request: requestBuilder(SimpleNetworking.get(path, queryParams: queryParams, headers: headers)))
     }
 
-    open class func get(_ path: String, queryParams: [String: String?]? = nil) -> SimpleRequest {
-        return SimpleRequest(path: path, httpMethod: .get, queryParams: queryParams)
+    open class func get(_ path: String, queryParams: [String: String?]? = nil,  headers: [String: String]? = nil) -> SimpleRequest {
+        return SimpleRequest(path: path, httpMethod: .get, queryParams: queryParams, headers: headers)
+    }
+
+    open func post(_ path: String, body: Data? = nil, queryParams: [String: String?]? = nil, headers: [String: String]? = nil, _ requestBuilder: SimpleRequestBuilder) {
+        execute(request: requestBuilder(SimpleNetworking.post(path, body: body, queryParams: queryParams, headers: headers)))
+    }
+
+    open class func post(_ path: String, body: Data? = nil, queryParams: [String: String?]? = nil, headers: [String: String]? = nil) -> SimpleRequest {
+        return SimpleRequest(path: path, httpMethod: .post, queryParams: queryParams, body: body, headers: headers)
     }
 }
 

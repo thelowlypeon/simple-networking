@@ -140,7 +140,7 @@ class SimpleNetworkingTests: XCTestCase {
     func testNetworkingErrorGET() {
         let expectation = self.expectation(description: "GET request failed")
         var error: SimpleNetworkingError?
-        SimpleNetworking(baseURL: URL(string: "http://invaliddomain.com")!).get("/404") {(request) in
+        SimpleNetworking(baseURL: URL(string: "http://invaliddomain1234.com")!).get("/404") {(request) in
             return request.on(error: {(err) in
                 error = err
                 expectation.fulfill()

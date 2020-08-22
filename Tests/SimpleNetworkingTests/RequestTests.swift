@@ -41,6 +41,36 @@ class RequestTests: XCTestCase {
         }
     }
 
+    func testPOST() {
+        let expectation = self.expectation(description: "Sent successful POST")
+        var response: SimpleResponse?
+        manager.post("/post", queryParams: ["queryParam": "value"]) {(request) in
+            return request
+                .body(json: ["bodyKey": "bodyValue"])
+                .accept(.json)
+                .on(error: {(error, _) in
+                    XCTFail("failed with error \(error)")
+                })
+                .on(success: {(resp) in
+                    response = resp
+                    expectation.fulfill()
+                })
+        }
+        waitForExpectations(timeout: 1, handler: nil)
+        XCTAssertNotNil(response)
+        if let dict = response?.json as? Dictionary<String, Any> {
+            XCTAssertEqual(dict["url"] as? String, "https://httpbin.org/post?queryParam=value")
+            print(dict)
+            if let json = dict["json"] as? Dictionary<String, String> {
+                XCTAssertEqual(json["bodyKey"], "bodyValue")
+            } else {
+                XCTFail("Did not receive POST body")
+            }
+        } else {
+            XCTFail("JSON dict casting failed")
+        }
+    }
+
     func testDecode() {
         struct Container: Decodable {
             let slideshow: Slideshow
@@ -131,6 +161,46 @@ class RequestTests: XCTestCase {
         if let actualHeaders = (response?.json as? Dictionary<String, Any>)?["headers"] as? Dictionary<String, String> {
             XCTAssertEqual(actualHeaders["Header1"], "Value1")
             XCTAssertEqual(actualHeaders["Header2"], "Value2")
+        } else {
+            XCTFail("No headers were sent (or httpbin messed up")
+        }
+    }
+
+    func testBasicAuthenticationHeaderIsSent() {
+        let expectation = self.expectation(description: "Received response with headers")
+        var response: SimpleResponse?
+        manager.get("/headers") {(request) in
+            return request
+                .authenticateBasic(user: "username", password: "password")
+                .accept(.json)
+                .on(success: {(resp) in
+                    response = resp
+                    expectation.fulfill()
+                })
+        }
+        waitForExpectations(timeout: 1, handler: nil)
+        if let actualHeaders = (response?.json as? Dictionary<String, Any>)?["headers"] as? Dictionary<String, String> {
+            XCTAssertEqual(actualHeaders["Authorization"], "Basic dXNlcm5hbWU6cGFzc3dvcmQ=")
+        } else {
+            XCTFail("No headers were sent (or httpbin messed up")
+        }
+    }
+
+    func testAuthenticationHeaderIsSent() {
+        let expectation = self.expectation(description: "Received response with headers")
+        var response: SimpleResponse?
+        manager.get("/headers") {(request) in
+            return request
+                .authenticate(withHeader: "my-token")
+                .accept(.json)
+                .on(success: {(resp) in
+                    response = resp
+                    expectation.fulfill()
+                })
+        }
+        waitForExpectations(timeout: 1, handler: nil)
+        if let actualHeaders = (response?.json as? Dictionary<String, Any>)?["headers"] as? Dictionary<String, String> {
+            XCTAssertEqual(actualHeaders["Authorization"], "my-token")
         } else {
             XCTFail("No headers were sent (or httpbin messed up")
         }
